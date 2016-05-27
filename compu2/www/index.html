@@ -11,6 +11,7 @@
   <script src="lib/ngCordova/dist/ng-cordova.js"></script>
   <script src="cordova.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/db.js"></script>
 </head>
 
 <body>
@@ -20,18 +21,23 @@
 
   <ion-nav-view></ion-nav-view> <!-- No quitar, por alguna razón todo deja de funcionar sin esto -->
   
-  <ion-header-bar align-title="left" class="bar-positive">
-  <h1 class="title">EvalATi</h1>
-  </ion-header-bar>
+  
 <!--PAGINA PRINCIPAL -->
 
   <script id="index.html" type="text/ng-template">
+   <ion-header-bar align-title="center" class="bar-positive">
+ 
+  <h1 class="title">EvalATi</h1>
+  <div class="buttons">
+    <button class="button">Right Button</button>
+  </div>
+</ion-header-bar>
     <ion-view view-title="Home">
       <ion-content ng-controller="MainController">
       <div class="sub" style="background-color:black"> Menú Principal </div>
       <div class="list">
           <a class="item item-thumbnail-left" href="#/profesor">
-            <img src="img/ionic.png">
+            <img src="https://image.freepik.com/free-icon/male-cartoon-pointing-to-white-board_318-44275.png">
             <h2> Menú Profesor </h2>
             <p> Administrador de Evaluaciones </p>
           </a>
@@ -73,34 +79,35 @@
 </ion-header-bar>
     <ion-view view-title="Home">
       <ion-content ng-controller="MainController">
-       <div class="card opcion-profesor-estudiante">
-          <div class="item item-text-wrap" >
-            <a class="button icon-right ion-chevron-right button-clear button-dark"  href="#/profesor/crear-evaluacion">Crear nueva evaluación</a>
-          </div>
-        </div>
-          <div class="card opcion-de-profesor">
-          <div class="item item-text-wrap" >
-            <a class="button icon-right ion-chevron-right button-clear button-dark"  href="#/profesor/agregar-pregunta">Ingresar pregunta</a>
-          </div>
-        </div>
-        </div>
-          <div class="card opcion-de-profesor">
-          <div class="item item-text-wrap" >
-            <a class="button icon-right ion-chevron-right button-clear button-dark"  href="#/profesor">Activar evaluación en un área</a>
-          </div>
-        </div>
-        </div>
-          <div class="card opcion-de-profesor">
-          <div class="item item-text-wrap" >
-            <a class="button icon-right ion-chevron-right button-clear button-dark"  href="#/profesor">Eliminar evaluación</a>
-          </div>
-        </div>
-        </div>
-          <div class="card opcion-de-profesor">
-          <div class="item item-text-wrap" >
-            <a class="button icon-right ion-chevron-right button-clear button-dark"  href="#/profesor">Ver evaluaciones presentadas</a>
-          </div>
-        </div>
+      <a class="item item-thumbnail-left" href="#/profesor/crear-evaluacion">
+            <img src="https://cdn0.iconfinder.com/data/icons/education-15/500/result-512.png">
+            <h2>Crear nueva evaluación  </h2>
+            <p> Añadir nueva evluación </p>
+          </a>
+      
+      <a class="item item-thumbnail-left" href="#/profesor/agregar-pregunta">
+            <img src="http://eyequant.files.wordpress.com/2013/07/icon-round-question_mark.jpg">
+            <h2>Ingresar pregunta  </h2>
+            <p> Añadir nueva pregunta  </p>
+          </a>
+           <a class="item item-thumbnail-left" href="#/profesor">
+            <img src="https://cdn4.iconfinder.com/data/icons/pictype-free-vector-icons/16/location-alt-512.png">
+            <h2>Activar evaluación en un área </h2>
+            <p> Activar una evaluación en un área determinada </p>
+          </a>
+          
+          <a class="item item-thumbnail-left" href="#/profesor">
+            <img src=" http://vignette3.wikia.nocookie.net/criminal-case-grimsborough/images/b/b1/Delete_Icon.png/revision/latest?cb=20141216101607">
+            <h2>Eliminar evluación</h2>
+            <p> Eliminar una evaluación  </p>
+          </a>
+          
+          
+       <a class="item item-thumbnail-left" href="#/profesor/crear-evaluacion">
+            <img src=" http://i2.wp.com/connectedresearchers.com/wp-content/uploads/2014/11/icon_43189.png">
+            <h2>Ver evaluaciones presentadas</h2>
+            <p> Ver las evaluaciones que ya han presentado los estudiantes  </p>
+          </a>
       </ion-content>
     </ion-view>
 
@@ -111,9 +118,16 @@
 
 
 <script id="estudiante.html" type="text/ng-template">
+ <ion-header-bar align-title="center" class="bar-positive">
+ EvalATi
+  <h1 class="title">ESTUDIANTE</h1>
+  <div class="buttons">
+    <button class="button">Right Button</button>
+  </div>
+</ion-header-bar>
      <ion-view view-title="Estudiante">
       <ion-content ng-controller="MainController">
-        <div class="sub" style="background-color:green"> Menú Estudiante </div>
+      
         <div class="list">
         
           <a class="item item-thumbnail-left" href="#/examenes">
@@ -160,7 +174,11 @@
       <ion-view view-title="Profesor - Crear nueva evaluación">
         <ion-content ng-controller="MainController">
          <div class="sub"> CREAR EVALUACIÓN</div>
-         
+          
+         <label class="item item-input item-stacked-label">
+          <span class="input-label">NOMBRE</span>
+        <input type="text" placeholder="Nombre Evaluación">
+          </label>
         </ion-content>
       </ion-view>
   </script>
@@ -187,6 +205,21 @@
           <span class="input-label">PREGUNTA</span>
         <input type="text" placeholder="¿  ?">
           </label>
+          <label class="item item-input item-stacked-label">
+          <span class="input-label">PUNTAJE</span>
+        <input type="text" placeholder="10">
+          </label>
+          <div class="list">
+            <label class="item item-input item-select">
+              <div class="input-label">
+                TEMA
+              </div>
+              <select>
+                <option ng-repeat = "tem in temas" >{{tem}}</option>
+              </select>
+            </label>
+          
+          </div>
           OPCIONES
           <div class="list">
             <div class="item item-input-inset">
@@ -195,17 +228,19 @@
                 <input type="text" id="pre" ng-model="preguntaNueva" placeholder="Respuesta">
               </label>
               
-              <button class="button button-small" ng-click="agregarPregunta( preguntaNueva )">  
+              <button class="button button-small" ng-click="agregarPregunta( preguntaNueva ) ">  
                 AGREGAR
               </button>
             </div>
             <div>
             <ion-list>
-             <ion-radio ng-repeat = "opcion in opcionesPregunta" ng-value="'A'">{{opcion.opcion}}</ion-radio>
+             <ion-radio ng-repeat = "opcion in opcionesPregunta" ng-value="opcion.opcion" ng-model="correcta" value="correcta">{{opcion.opcion}}</ion-radio>
             </ion-list>
             </div>
           
           </div>
+          <a class="button icon-right ion-chevron-right button-positive" href="#/camara">Agrgar pregunta</a>
+          {{ correcta }}
         </ion-content>
       </ion-view>
     </script>
@@ -289,10 +324,18 @@
 <!-- Examenes Disponibles -->
 
 <script id="examenes.html" type="text/ng-template">
+ <ion-header-bar align-title="center" class="bar-positive">
+ EvalATi
+  <h1 class="title">ESTUDIANTE</h1>
+  <div class="buttons">
+    <button class="button">Right Button</button>
+  </div>
+</ion-header-bar>
     <ion-view view-title="URL">
         <ion-content style="background: #e8ebf1;" ng-controller="TomarExamen">
-          <div class="sub" style="background-color:brown;"> Exámenes Disponibles - Estudiante </div>
-            <div class="card" ng-repeat="examen in mostrarExamenesDisponibles()">
+          <div class="sub" style="background-color:brown;"> Exámenes Disponibles </div>
+            <div class="card" ng-repeat="examen in examenes">
+              <a href="#/tomarexamen/{{examen.id}}">
               <div class="item item-divider">
                 {{ examen.nombre  }}
               </div>
@@ -302,7 +345,39 @@
               <div class="item item-divider">
                 Tema: {{ examen.tema }}
               </div>
+              </a>
             </div>
+        </ion-content>
+</ion-view>
+</script>
+
+
+<!---  TOMAR UN EXAMEN ---->
+
+<script id="tomarexamen.html" type="text/ng-template">
+ <ion-header-bar align-title="center" class="bar-positive">
+ EvalATi
+<h1 class="title">ESTUDIANTE</h1>
+</ion-header-bar>
+    <ion-view view-title="URL">
+        <ion-content style="background: #e8ebf1;" ng-controller="TomarExamen">
+          <div class="sub" style="background-color:brown;"> Tomar Examen </div>
+          <div class="card" ng-repeat="pregunta in evaluacion.preguntas">
+            <div class="item item-text-wrap">
+              <h2> Pregunta</h2> {{ pregunta.pregunta }}
+            </div>
+            <!-- preguntas -->
+            <h3> Respuestas</h3>
+            <ion-list>
+
+                <ion-radio ng-repeat="res in pregunta.respuestas" ng-model="choice" ng-value="'{{ res.respuesta }}'">{{ res.respuesta }}</ion-radio>
+            </ion-list>
+            
+          </div>
+          
+          <button class="button button-large button-positive">
+            Enviar Examen
+          </button>
         </ion-content>
 </ion-view>
 </script>

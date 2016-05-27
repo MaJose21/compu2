@@ -1,32 +1,92 @@
 var app = angular.module( 'universidad' , ['ionic', 'ui.router', 'ngCordova' ]);
-var preguntas = [];
+var preguntas = [
+{
+  id: 1 ,
+  valor: 10,
+  pregunta : "cómo estás?",
+  respuestas : [
+  {
+    respuesta : "bien",
+    correcta : true
+  },
+  {
+    respuesta : "mal",
+    correcta : false
+  }
+  ]
+  
+}
+,
+{ 
+  id: 2 ,
+  valor: 10,
+  pregunta : "¿Que es Mineria de Datos?",
+  respuestas : [
+  {
+    respuesta : "Un rellenazo",
+    correcta : true
+  },
+  {
+    respuesta : "Materia muy importante",
+    correcta : false
+  }
+  ]
+}
+];
+
 var examenes = [
   {
     id: 1,
     nombre: "Parcial 1 Cálculo",
     descripcion: "1 hora, También puede ser tomado presencial en el salón 2-305. Importante llevar cuaderno, lapiz y borrador",
     tema : "Derivadas",
+    preguntas : [
+      {
+        id: 1 ,
+        valor: 50
+      },{
+        id: 2,
+        valor: 70
+      }
+    ]
   },
   {
     id: 2,
     nombre: "Parcial 3 Computación Móvil",
     descripcion: "3 horas, El parcial consiste en hacer una aplicación móvil sencilla. Solo se puede usar phonegap",
-    tema : "iOS, PhoneGap y Patrones"
+    tema : "iOS, PhoneGap y Patrones",
+    preguntas : [
+      {
+        id: 1 ,
+        valor: 50
+      },{
+        id: 2,
+        valor: 70
+      }
+    ]
   },{
     id: 3,
     nombre: "Bioquímica",
     descripcion: "3 horas, el parcial es un domingo a las 7am antes de un festivo. 30 preguntas, 20 minutos para resolverlo. Pasa aproximadamante el 1% de los estudiantes",
-    tema : "TODO lo visto desde primer semestre. "
+    tema : "TODO lo visto desde primer semestre. ",
+    preguntas : [
+      {
+        id: 1 ,
+        valor: 50
+      },{
+        id: 2,
+        valor: 70
+      }]
   }
 ];
 var respuestas = [];
-
 
 /**
  * Controlador de la pagina principal
  * 
  * */
 app.controller('MainController', function($scope) { // el scope es como una variable global en angular, se puede crear un controlador por vista o conjunto de vistas, como te quede más fácil
+  
   $scope.hello = "Hola mundo, prueba de angular";
   $scope.opciones = [{
     nombre: "Profesores",
@@ -40,15 +100,36 @@ app.controller('MainController', function($scope) { // el scope es como una vari
     $scope.profesores.push(profesor);
   }
   
+  $scope.correcta = "qewrtytuiop";
   
   $scope.preguntaNueva = null; // aqui agregue una variable para que angular le haga referncia, en el html lo referencio como ng-model, despues cuando llamo el metedo lo envio por paramtero
-  $scope.opcionesPregunta = [
-    
-  ];
+  
+  $scope.opcionesPregunta = [];
+  
+  
+  console.log("la correcta es: " + $scope.correcta );
   
   $scope.agregarPregunta = function(opcion) {
+    pre.value=" ";
     $scope.opcionesPregunta.push( { opcion : opcion } ); // tienes que meter un objeto que este formado igual que el otro, osea los de la lista
   }
+   $scope.elegirPregunta = function(opcion) {
+    
+    $scope.opcionesPregunta.push( { opcion : opcion } ); // tienes que meter un objeto que este formado igual que el otro, osea los de la lista
+  }
+  
+  $scope.temas=[
+  {
+    tema : "ADOO"
+  },
+  {
+    tema: "POO"
+  },
+  {
+    tema: "Estructuras"
+  }
+
+  ]
 });
 
 
@@ -78,11 +159,27 @@ app.controller( 'MyCtrl' , function( $scope , $cordovaGeolocation ){
  * Controlador de Tomar un Examen 
  * 
  */
-app.controller('TomarExamen', function( $scope , $cordovaCamera ){
-  
-  
+app.controller('TomarExamen', function( $state ,$stateParams ,  $scope , $cordovaCamera ){
   
   //////////////// FUNCIONALIDAD DE FOTOS //////////////////////////////
+  //alert( $stateParams.id )
+  $scope.preguntas = [];
+  $scope.evaluacion = { preguntas:[] };
+  
+  var id = $stateParams.id;
+  if( id != null ){
+    var examen = mostrarExamen( id );
+    $scope.examen = examen;
+    almacenarPreguntas( preguntas );
+    var preg = obtenerPreguntas( examen );
+    for( var j  = 0 ; j < preg.length ; j++ ){
+      $scope.evaluacion.preguntas.push( preg[ j ]);
+    }
+    $state.go($state.current, {}, {reload: true});
+    
+    
+  }
+  
   $scope.takePhoto = function () {
     var options = {
       quality: 75,
@@ -129,15 +226,44 @@ app.controller('TomarExamen', function( $scope , $cordovaCamera ){
   
   }
   
+  function obtenerPreguntas( examen ) {
+    preguntas = darPreguntas();
+    retorno = [];
+    for( var i = 0 ;  i < examen.preguntas.length ; i++ ){
+      for( var j = 0; j < preguntas.length ; j++){
+        if( examen.preguntas[i].id == preguntas[j].id ){
+          retorno.push( preguntas[j] );
+        }
+      }
+    }
+    return retorno;
+  }
+  
   function mostrarExamenesDisponibles(){
-    examenes.forEach(function(examen){
-      console.log(examen.nombre); // falta lo del GPS, para eso el ciclo
-    });
+    examenes = obtenerExamenes();
+    if( examenes != null ){
+        examenes.forEach(function(examen){
+          console.log(examen.nombre); // falta lo del GPS, para eso el ciclo
+        });
+    }
     return examenes;
   }
   
+  function mostrarExamen( id ){
+    examenes = obtenerExamenes();
+    for( var i = 0; i < examenes.length ; i++ ){
+      examen = examenes[ i ];
+      if( examen.id == id ){
+        return examen;
+      }
+    }
+    return null;
+  }
+  $scope.mostrarExamen = mostrarExamen;
   $scope.mostrarExamenesDisponibles = mostrarExamenesDisponibles;
-  $scope.examenes = mostrarExamenesDisponibles();
+  $scope.examenes = examenes;
+  $scope.examen = null;
+  
   
   
 });
@@ -222,6 +348,11 @@ app.config(function($stateProvider, $urlRouterProvider) {
             url: '/examenes',
             templateUrl: 'examenes.html',
             controller: 'TomarExamen'
+          }).state('tomarexamen', {
+            url: '/tomarexamen/:id',
+            templateUrl: 'tomarexamen.html',
+            controller: 'TomarExamen'
           });
   $urlRouterProvider.otherwise("/");
 });
+
