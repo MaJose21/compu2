@@ -1,27 +1,48 @@
+
 function almacenarExamenes( examenes )
 {
-	localStorage.setItem('examenes', JSON.stringify( examenes ) );
+	window.localStorage.setItem('examenes', JSON.stringify( examenes ) );
 }
 
 function agregarExamen( examen )
 {
-	mexamenes = obtenerExamenes();
+	var mexamenes = obtenerExamenes();
 	mexamenes.push( examen )
 	examenes = mexamenes;
 	almacenarExamenes( examenes );
 }
 
+function storeEvaluaciones(){
+	window.localStorage.setItem('evals', JSON.stringify( evals ) );
+}
+function getEvaluaciones(){
+	var evaluacion = JSON.parse( window.localStorage.getItem('evals') );
+	if( evaluacion == null ){
+		evals = [];
+		storeEvaluaciones();
+	}else{
+		evals = evaluacion;
+	}
+	return evals;
+}
+
+function addEvaluacion( evaluacion ){
+	evals.push( evaluacion );
+	storeEvaluaciones();
+}
+
 function obtenerCantidadExamenes()
 {
-	var cadenaExamenes = localStorage.getItem('examenes');
+	var cadenaExamenes = window.localStorage.getItem('examenes');
 	var examenes = JSON.parse( cadenaExamenes );
 	return examenes.length;
 }
 
 function obtenerExamenes()
 {
-	cadenaExamenes = localStorage.getItem('examenes');
-	return JSON.parse( cadenaExamenes );
+	var cadenaExamenes = window.localStorage.getItem('examenes');
+	var retorno = JSON.parse( cadenaExamenes );
+	return retorno;
 }
 
 function inicializarDB(){
@@ -40,7 +61,6 @@ function inicializarDB(){
 	var copiaUbi = darUbicaciones();
 	if( copiaUbi == null || copiaUbi.length == 0 ){
 		almacenarUbicaciones( examXubicacion );
-		alert("Almaceno ubis");
 	}
 	
     preguntas = darPreguntas();
@@ -50,19 +70,20 @@ function inicializarDB(){
 }
 
 function crearPregunta( pregunta , valor ){
-	return { pregunta : pregunta , valor: valor}
+	return { pregunta : pregunta , valor: valor }
 }
 
 function obtenerCantidadPreguntas()
 {
-	var cadenaPreguntas = localStorage.getItem('preguntas');
+	var cadenaPreguntas = window.localStorage.getItem('preguntas');
 	var pregs = JSON.parse( cadenaPreguntas );
 	return pregs.length;
 }
 
 function darPreguntas(){
-	cadenaPregunta = localStorage.getItem('preguntas');
-	return JSON.parse( cadenaPregunta );
+	cadenaPregunta = window.localStorage.getItem('preguntas');
+	var retorno =  JSON.parse( cadenaPregunta );
+	return retorno;
 }
 
 function agregarPregunta( pregunta )
@@ -75,13 +96,13 @@ function agregarPregunta( pregunta )
 
 function almacenarPreguntas( preguntas )
 {
-	localStorage.setItem('preguntas', JSON.stringify( preguntas ));
+	window.localStorage.setItem('preguntas', JSON.stringify( preguntas ));
 }
 
 
 function obtenerCantidadUbicaciones()
 {
-	var cadenaUbicaciones = localStorage.getItem('Ubicaciones');
+	var cadenaUbicaciones = window.localStorage.getItem('Ubicaciones');
 	var ubis = JSON.parse( cadenaUbicaciones );
 	return ubis.length;
 }
@@ -101,23 +122,7 @@ function agregarUbicaion( ubicacion )
 
 function almacenarUbicaciones( Ubicaciones )
 {
-	alert(JSON.stringify( Ubicaciones ));
-	localStorage.setItem('Ubicaciones', JSON.stringify( Ubicaciones ));
+	window.localStorage.setItem('Ubicaciones', JSON.stringify( Ubicaciones ));
 }
 
-
-
-
-
-
-
 inicializarDB();
-
-/*	
-	examen = crearExamen();	
-	examenes = obtenerExamenes();
-	examenes.push( examen );
-	almacenarExamenes( examenes  )
-
-*/
- // esto para que por primera vea cargue los examenes

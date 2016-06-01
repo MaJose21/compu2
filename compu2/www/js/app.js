@@ -1,7 +1,7 @@
 var app = angular.module( 'universidad' , ['ionic', 'ui.router', 'ngCordova' ]);
 
 var m_degree = 111320;
-var RANGE = 0.00005 ;// five meters
+var RANGE = 0.00011 ;// five meters
 var preguntas = [
 {
   id: 1 ,
@@ -161,6 +161,9 @@ var examXubicacion =
 
 var respuestas = [];
 
+var evaluacionesTomadas = [];
+
+
 /**
  * Controlador de la pagina principal
  * 
@@ -171,19 +174,22 @@ var respuestas = [];
  var reguntas=[];
  var examenTemporal={reguntas:[] };
  var total=0;
-
+ var evaluacionActual = null;
+ var evals = [];  
+ var evaluacionPruebaActual = null ;
 app.controller('ExamenesController', function($scope) { 
  
   
   preguntasAElegir=darPreguntas();
   $scope.preguntas=[];
-  $scope.preguntas=preguntasAElegir.slice(0);
+  $scope.preguntas=preguntasAElegir.slice( 0 );
  
   $scope.elegidas=[];
-  $scope.elegidas=preElegidas.slice(0);
+  $scope.elegidas=preElegidas.slice( 0 );
   
   $scope.examenes=[];
-  $scope.examenes=obtenerExamenes();
+  var exms = obtenerExamenes( );
+  $scope.examenes= exms;
 
  $scope.examenAGuardar=examenTemporal.nombre;
   $scope.totalexamen=0;
@@ -214,14 +220,16 @@ app.controller('ExamenesController', function($scope) {
   {
     
       for( var j  = 0 ; j < $scope.preguntas.length ; j++ ){
-      if($scope.preguntas[j].checked==true){
+        if($scope.preguntas[j].checked==true){
         
           preElegidas.push($scope.preguntas[j]);
-          
+          $scope.preguntas[j].checked=false;
          
-      }
-    }
-  $scope.elegidas=preElegidas.slice(0);
+          }
+        }
+      $scope.elegidas=preElegidas.slice(0);
+      
+  
   }
   
    $scope.agregarValor=function(){
@@ -231,10 +239,15 @@ app.controller('ExamenesController', function($scope) {
         total=total+Number(examenTemporal.preguntas[j].valor);
       }
      agregarExamen(examenTemporal);
+     
+     
    
   }
   
-  
+  $scope.borrarPreElegidas=function()
+  {
+    preElegidas=[];
+  }
   $scope.mostrarCheck=function(){
     alert($scope.checkbox);
   }
@@ -269,10 +282,7 @@ app.controller('MainController', function($scope) { // el scope es como una vari
   
   $scope.opcionesPregunta = [];
   
-  
-  console.log("la correcta es: " + $scope.correcta );
-  
-  $scope.agregarRespuesta = function(opcion) {
+    $scope.agregarRespuesta = function(opcion) {
     pre.value=" ";
    
     opciones.push({opcion:opcion} ); // tienes que meter un objeto que este formado igual que el otro, osea los de la lista
@@ -311,14 +321,94 @@ app.controller('MainController', function($scope) { // el scope es como una vari
   }
 
   ];
+});
+
+app.controller( 'MyCtrl', function( $state , $stateParams , $scope ) {
+  $scope.examenes = examenes;
   
+  function mostrarExamen( id )
+  {
+    var examenes = obtenerExamenes();
+    for( var i = 0; i < examenes.length ; i++ )
+    {
+      examen = examenes[i];
+      if( examen.id == id )
+      {
+        return examen;
+      }
+    }
+    return null;
+  }
   
+  var id = $stateParams.id;
+  if( id != null )
+  {
+      var examen = mostrarExamen( id );
+      $scope.examenAubicar = examen;
+  }
+});
+
+
+
+
+app.controller( 'resultados', function($scope) {
   
+  var resReal = []
+  var misPreguntas = darPreguntas(  );
+  var preguntasReales = [];
+  for( var i =0 ; i < evaluacionPruebaActual.respuestas.length ; i++ ){
+    if( evaluacionPruebaActual.respuestas[ i ] != null ){
+      var idPregunta =  evaluacionPruebaActual.respuestas[ i ].split("-")[0];
+      for( var j = 0; j < misPreguntas.length ; j++ ){
+        if( misPreguntas[ j ].id == idPregunta ){
+          misPreguntas[ j ].resp =  evaluacionPruebaActual.respuestas[ i ];
+          preguntasReales.push( JSON.parse(JSON.stringify( misPreguntas[ j ] )) );
+        }
+      }
+      resReal.push( evaluacionPruebaActual.respuestas[ i ] );
+    }
+  }
+  
+  evaluacionPruebaActual.respuestas = resReal;
+  $scope.resultados = evaluacionPruebaActual;
+  $scope.questions = preguntasReales;
   
 });
 
-app.controller( 'MyCtrl', function($scope) {
+
+app.controller( 'resultados', function($scope) {
+  
+  
+  var evals = getEvaluaciones();
+  $scope.examenes = evals;
+  var misPreguntas = darPreguntas(  );
+  for( var i = 0; i< evals.length; i++ ){
+    var evaluacion = evals[ i ];
+    // busco cada evualuacion
+  }
+  /* fala buscar los exámenesc */
+  /*var resReal = []
+  var misPreguntas = darPreguntas(  );
+  var preguntasReales = [];
+  for( var i =0 ; i < evaluacionPruebaActual.respuestas.length ; i++ ){
+    if( evaluacionPruebaActual.respuestas[ i ] != null ){
+      var idPregunta =  evaluacionPruebaActual.respuestas[ i ].split("-")[0];
+      for( var j = 0; j < misPreguntas.length ; j++ ){
+        if( misPreguntas[ j ].id == idPregunta ){
+          misPreguntas[ j ].resp =  evaluacionPruebaActual.respuestas[ i ];
+          preguntasReales.push( JSON.parse(JSON.stringify( misPreguntas[ j ] )) );
+        }
+      }
+      resReal.push( evaluacionPruebaActual.respuestas[ i ] );
+    }
+  }
+  
+  evaluacionPruebaActual.respuestas = resReal;
+  $scope.resultados = evaluacionPruebaActual;
+  $scope.questions = preguntasReales;
+  */
 });
+
 /**
  * 
  * Controlador de prueba del GPS
@@ -326,43 +416,36 @@ app.controller( 'MyCtrl', function($scope) {
  * */
 app.controller( 'GpsCtrl' , function( $scope , $cordovaGeolocation )
 {
-  $scope.exmUbi = null;
-  
-  function buscarEvals () 
+  $scope.exmUbi = [];
+  $scope.ubicacion = new Object();
+  function mostrarExamen( id )
   {
-    alert("ENTRA ALCONTROL GPS");
-    var watchOptions = { timeout : 3000, enableHighAccuracy: false  };
-    var watch = $cordovaGeolocation.watchPosition(watchOptions);
-    watch.then( null,
-      function(err) 
-      {
-        alert("Error");
-      },
-      function(position) 
-      {
-        var lat = position.coords.latitude;
-        var long = position.coords.longitude;
-        alert( "LAT: "+ lat + "LON" + long );
-        buscarExamenes( lat, lon );
-      }
-    );
-  watch.clearWatch();
-  }
-  
-  function mostrarExamen( id ){
-    examenes = obtenerExamenes();
-    for( var i = 0; i < examenes.length ; i++ ){
+    var examenes = obtenerExamenes();
+    for( var i = 0; i < examenes.length ; i++ )
+    {
       examen = examenes[i];
-      if( examen.id == id ){
+      if( examen.id == id )
+      {
         return examen;
       }
     }
     return null;
   }
   
+  function localizado( id, ubicados )
+  {
+    for( var i = 0; i < ubicados.length; i++ )
+    {
+      if( ubicados[i].id == id )
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   function buscarExamenes ( lat, lon )
   {
-     alert("LLEGA  ABUSCAR");
      var latitudLeft = lat - RANGE;
      var latitudRight = lat + RANGE;
      var longitudeUp = lon + RANGE;
@@ -370,19 +453,32 @@ app.controller( 'GpsCtrl' , function( $scope , $cordovaGeolocation )
      
      for( var i = 0; i < examXubicacion.length; i++ )
      {
+       
        var parc = examXubicacion[i];
        if( parc.lon + parc.radio >longitudeDown &&
            parc.lon -parc.radio < longitudeUp &&
            parc.lat +  parc.radio > latitudLeft &&
-          parc.lat -  parc.radio < latitudRight )
+          parc.lat -  parc.radio < latitudRight && !localizado( parc.idEval, $scope.exmUbi ) )
        {
         var ex = mostrarExamen( parc.idEval );
-        alert( "Estas en " + parc.nombre + "presenta la evaluacion: " + ex.nombre );
         $scope.exmUbi.push( ex );
        }
      }
   }
-    $scope.buscarEvals = buscarEvals();
+    function showPosition(position) 
+    {
+        document.getElementById("lati").innerHTML = "Latitud: " + position.coords.latitude;
+        document.getElementById("longi").innerHTML = "Longitud: " + position.coords.longitude;
+        buscarExamenes ( position.coords.latitude, position.coords.longitude );
+    }
+    function getLocation() 
+    {
+       if (window.navigator.geolocation) 
+       { 
+         window.navigator.geolocation.getCurrentPosition( showPosition );
+       }
+    }
+    setInterval( getLocation, 1000 );
 });
 
 
@@ -395,19 +491,159 @@ app.controller('TomarExamen', function( $state , $stateParams , $scope , $cordov
   
   //////////////// FUNCIONALIDAD DE FOTOS //////////////////////////////
   //alert( $stateParams.id )
+  $scope.choice = [];
   $scope.preguntas = [];
   //$scope.evaluacion = { preguntas:[] };
   
   var id = $stateParams.id;
   if( id != null ){
-    var examen = mostrarExamen( id );
-    $scope.examenApresentarReal = null;
-    $scope.examenApresentarReal = examen;
+      var examen = mostrarExamen( id );
+      $scope.examenApresentarReal = examen;
 
-    var preg = obtenerPreguntas( examen );
-    for( var j  = 0 ; j < preg.length ; j++ ){
-      $scope.examenApresentarReal.preguntas.push( preg[ j ]);
+      var preg = obtenerPreguntas( examen );
+      $scope.examenApresentarReal.preguntas = [];
+      for( var j  = 0 ; j < preg.length ; j++ ){
+        $scope.examenApresentarReal.preguntas.push( preg[ j ] );
+      }
+    
+  }
+  
+  $scope.takePhoto = function () {
+    var options = {
+      quality: 75,
+      destinationType: Camera.DestinationType.DATA_URL,
+      sourceType: Camera.PictureSourceType.CAMERA,
+      allowEdit: false,
+      encodingType: Camera.EncodingType.JPEG,
+      targetWidth: 300,
+      targetHeight: 300,
+      popoverOptions: CameraPopoverOptions,
+      saveToPhotoAlbum: true
+    };
+    var foto = $cordovaCamera.getPicture(options).then(function (imageData) {
+        $scope.imgURI = "data:image/jpeg;base64," + imageData;
+        evaluacionActual.foto = $scope.imgURI;
+    }, function (err) {
+        // An error occured. Show a message to the user
+        console.log("Error al obtener la foto");
+    });
+    console.log( foto.toString() )
+  }
+                
+  $scope.choosePhoto = function () {
+    var options = {
+      quality: 75,
+      destinationType: Camera.DestinationType.DATA_URL,
+      sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+      allowEdit: true,
+      encodingType: Camera.EncodingType.JPEG,
+      targetWidth: 300,
+      targetHeight: 300,
+      popoverOptions: CameraPopoverOptions,
+      saveToPhotoAlbum: false
+  };
+   
+  $cordovaCamera.getPicture(options).then(function (imageData) {
+      alert( evaluacionActual );
+      $scope.imgURI = "data:image/jpeg;base64," + imageData;
+      evaluacionActual.foto = $scope.imgURI;
+  }, function (err) {
+      alert("Error al tomar la foto");
+  });
+  
+  }
+  
+  function obtenerPreguntas( examen ) {
+    var pregntas = darPreguntas();
+    retorno = [];
+    for( var i = 0 ;  i < examen.preguntas.length ; i++ ){
+      for( var j = 0; j < pregntas.length ; j++){
+        if( examen.preguntas[i].id == pregntas[j].id ){
+          retorno.push( pregntas[j] );
+        }
+      }
     }
+    return retorno;
+  }
+  
+  function mostrarExamenesDisponibles(){
+    examenes = obtenerExamenes();
+    if( examenes != null ){
+        examenes.forEach(function(examen){
+          console.log(examen.nombre); // falta lo del GPS, para eso el ciclo
+        });
+    }
+    return examenes;
+  }
+  
+  function mostrarExamen( idi )
+  {
+    examenes = obtenerExamenes();
+    for( var i = 0; i < examenes.length ; i++ ){
+      examen = examenes[i];
+      if( examen.id == idi ){
+        return examen;
+      }
+    }
+    return null;
+  }
+  
+  function guardarEvaluacion(){
+    evaluacionActual = {
+      respuestas : $scope.choice,
+      id : id
+    }
+  }
+  
+  $scope.guardarEvaluacion = function(){
+    addEvaluacion( evaluacionActual );
+    evaluacionActual = null;
+  }
+  
+  $scope.evaluacionFalsa = function(){
+    evaluacionActual = {
+      respuestas : $scope.choice,
+      id : id
+    }
+    evaluacionPruebaActual = JSON.parse( JSON.stringify( evaluacionActual ));
+    evaluacionActual = null;
+  }
+  
+  $scope.mostrarExamen = mostrarExamen;
+  $scope.mostrarExamenesDisponibles = mostrarExamenesDisponibles;
+  $scope.examenes = examenes; 
+  $scope.examen = null;
+  $scope.evaluacionReal = guardarEvaluacion;
+});
+
+
+
+/*
+Controlador quem muestra los examenes
+**
+*/
+app.controller('MostrarExamenes', function( $state , $stateParams , $scope , $cordovaCamera ){
+  
+  //////////////// FUNCIONALIDAD DE FOTOS //////////////////////////////
+  //alert( $stateParams.id )
+  $scope.preguntas = [];
+  //$scope.evaluacion = { preguntas:[] };
+  
+  var id = $stateParams.id;
+  if( id != null ){
+    
+    setTimeout(function(){
+      
+      var examen = mostrarExamen( id );
+      $scope.examenApresentarReal = null;
+      $scope.examenApresentarReal = examen;
+
+      var preg = obtenerPreguntas( examen );
+      for( var j  = 0 ; j < preg.length ; j++ ){
+        $scope.examenApresentarReal.preguntas.push( preg[ j ]);
+      }
+    }, 1000);
+    
   }
   
   $scope.takePhoto = function () {
@@ -425,6 +661,7 @@ app.controller('TomarExamen', function( $state , $stateParams , $scope , $cordov
     var foto = $cordovaCamera.getPicture(options).then(function (imageData) {
         $scope.imgURI = "data:image/jpeg;base64," + imageData;
         console.log( $scope.imgURI );
+        evaluacionActual.foto = $scope.imgURI;
         alert( $scope.imgURI );
     }, function (err) {
         // An error occured. Show a message to the user
@@ -449,6 +686,7 @@ app.controller('TomarExamen', function( $state , $stateParams , $scope , $cordov
   $cordovaCamera.getPicture(options).then(function (imageData) {
       $scope.imgURI = "data:image/jpeg;base64," + imageData;
       console.log( $scope.imgURI );
+      evaluacionActual.foto = $scope.imgURI;
       alert( $scope.imgURI );
   }, function (err) {
       alert("Error al tomar la foto")
@@ -493,6 +731,7 @@ app.controller('TomarExamen', function( $state , $stateParams , $scope , $cordov
   $scope.mostrarExamenesDisponibles = mostrarExamenesDisponibles;
   $scope.examenes = examenes; 
   $scope.examen = null;
+  
 });
 
 /**
@@ -618,6 +857,10 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider ) {
             url: '/profesor/valorpre',
             templateUrl: 'valorpre.html',
             controller: 'ExamenesController'
+          }).state('FAQ', {
+            url: '/FAQ',
+            templateUrl: 'FAQ.html',
+            controller: 'MyCtrl'
           }).state('agregarpregunta', {
             url: '/profesor/agregar-pregunta',
             templateUrl: 'agregarpregunta.html',
@@ -629,7 +872,7 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider ) {
           }).state('ev-presentadas', {
             url: '/profesor/ev-presentadas',
             templateUrl: 'ev-presentadas.html',
-            controller: 'ExamenesController'
+            controller: 'resultados'
           }).state('info-evaluacion', {
             url: '/profesor/info-evaluacion',
             templateUrl: 'info-evaluacion.html',
@@ -649,12 +892,31 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider ) {
           }).state('examenes', {
             url: '/examenes',
             templateUrl: 'examenes.html',
-            controller: 'TomarExamen'
+            controller: 'MostrarExamenes'
+          }).state('areaXubiacion', {
+            url: '/profesor/evalXarea',
+            templateUrl: 'profesor/evalXarea.html',
+            controller: 'MyCtrl'
+          }).state('examenesprueba', {
+            url: '/examenesprueba',
+            templateUrl: 'examenesprueba.html',
+            controller: 'MostrarExamenes'
           }).state('tomarexamen', {
             url: '/tomarexamen/:id',
             templateUrl: 'tomarexamen.html',
             controller: 'TomarExamen'
+          }).state('tomarexamenprueba', {
+            url: '/tomarexamenprueba/:id',
+            templateUrl: 'tomarexamenprueba.html',
+            controller: 'TomarExamen'
+          }).state('activarXarea', {
+            url: '/activarExamen/:id',
+            templateUrl: 'activarExamen.html',
+            controller: 'MyCtrl'
+          }).state('resultados', {
+            url: '/resultados',
+            templateUrl: 'resultados.html',
+            controller: 'resultados'
           });
   $urlRouterProvider.otherwise("/");
 });
-
